@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="narratiive_host" translatable="false">to-be-overridden</string>
+    <string name="narratiive_hostkey" translatable="false">to-be-overridden</string>
+    <string name="narratiive_use_aaid" translatable="false">0</string>
+</resources>
