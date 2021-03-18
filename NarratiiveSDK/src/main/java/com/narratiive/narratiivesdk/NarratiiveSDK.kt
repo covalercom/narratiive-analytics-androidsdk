@@ -14,7 +14,6 @@ object NarratiiveSDK {
     private lateinit var sharedPref: SharedPreferences
     private lateinit var apiService: NarratiiveApiService
 
-    private var aaid: String? = null
     private var useAaid: Boolean = false
     private var token: String? = null
     private var isSending: Boolean = false
@@ -29,12 +28,12 @@ object NarratiiveSDK {
         this.sharedPref = context.getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE)
         this.token = this.sharedPref.getString("token", null)
 
-        if (this.useAaid) {
-            loadAdvertisingId()
-        }
-
         if (this.token == null) {
-            createToken()
+            if (this.useAaid) {
+                loadAdvertisingId(NarratiiveSDK::createToken)
+            } else {
+                createToken()
+            }
         }
     }
 
@@ -42,20 +41,20 @@ object NarratiiveSDK {
         this.createHit(screenName)
     }
 
-    private fun loadAdvertisingId() {
+    private fun loadAdvertisingId(cb: (String?) -> Unit) {
         Thread(Runnable {
             try {
                 val info = AdvertisingIdClient.getAdvertisingIdInfo(this.context)
-                this.aaid = info.id
+                cb(info.id)
             } catch (e: Exception) {
-                this.aaid = null
+                cb(null)
             }
         }).start()
     }
 
 
-    private fun createToken() {
-        val tokenInfo = TokenInfo(host = this.host, hostKey = this.hostKey, aaid = this.aaid)
+    private fun createToken(advertisingId: String? = null) {
+        val tokenInfo = TokenInfo(host = this.host, hostKey = this.hostKey, aaid = advertisingId)
 
         apiService.createToken(tokenInfo) {
             this.token = it?.token
