@@ -32,7 +32,6 @@ data class ResponseData (
 )
 
 interface ApiService {
-
     @POST("tokens")
     fun createToken(@Body data: TokenInfo, @HeaderMap headers: Map<String, String>): Call<ResponseData>
 
@@ -43,25 +42,23 @@ interface ApiService {
 
 
 object ApiServiceBuilder {
-    //    private const val NARRATIIVE_API_URL = "https://collector.effectivemeasure.net/app/"
-    private const val NARRATIIVE_API_URL = "http://10.0.2.2:9002/app/"
-
     private val client = OkHttpClient.Builder().build()
 
-    private val retrofit = Retrofit.Builder()
-        .baseUrl(NARRATIIVE_API_URL)
-        .addConverterFactory(GsonConverterFactory.create())
-        .client(client)
-        .build()
+    fun<T> buildService(service: Class<T>, context: Context): T {
+        val baseUrl = context.getString(R.string.narratiive_api_url)
+        val retrofit = Retrofit.Builder()
+                .baseUrl(baseUrl)
+                .addConverterFactory(GsonConverterFactory.create())
+                .client(client)
+                .build()
 
-    fun<T> buildService(service: Class<T>): T{
         return retrofit.create(service)
     }
 }
 
 
 class NarratiiveApiService(context: Context) {
-    private val retrofit = ApiServiceBuilder.buildService(ApiService::class.java)
+    private val retrofit = ApiServiceBuilder.buildService(ApiService::class.java, context)
     private val userAgent =  WebView(context).settings.userAgentString
     private val headers = hashMapOf("Content-Type" to "application/json", "User-Agent" to userAgent, "Accept" to "application/json")
 
