@@ -20,14 +20,13 @@ object NarratiiveSDK {
     private var isSending: Boolean = false
     private var isDebug: Boolean = false
 
-
-    fun init(context: Context, isDebug: Boolean = false) {
+    fun init(context: Context, _host: String, _hostKey: String, _useAaid: Boolean, isDebug: Boolean = false) {
         this.isDebug = isDebug
         this.context = context
         this.apiService = NarratiiveApiService(context)
-        this.host = context.getString(R.string.narratiive_host)
-        this.hostKey = context.getString(R.string.narratiive_hostkey)
-        this.useAaid = context.getString(R.string.narratiive_use_aaid) == "1"
+        this.host = _host
+        this.hostKey = _hostKey
+        this.useAaid = _useAaid
         this.sharedPref = context.getSharedPreferences(SHARED_PREF_FILE, Context.MODE_PRIVATE)
         this.token = this.sharedPref.getString("token", null)
 
@@ -40,6 +39,14 @@ object NarratiiveSDK {
         }
 
         this.log("Init completed")
+    }
+
+    fun init(context: Context, isDebug: Boolean = false) {        
+        this.init(context,
+                 context.getString(R.string.narratiive_host),
+                 context.getString(R.string.narratiive_hostkey),
+                 context.getString(R.string.narratiive_use_aaid) == "1",
+                 isDebug)
     }
 
     fun send(screenName: String?) {
